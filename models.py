@@ -37,7 +37,7 @@ class DBManager(object):
 					   "title varchar(30) NOT NULL," \
 					   "content varchar(1000) NOT NULL," \
 					   "create_time datetime NOT NULL," \
-					   "update_time datetime," \
+					   "update_time datetime DEFAULT NULL," \
 					   "likes int(10) NOT NULL," \
 					   "dislikes int(10) NOT NULL," \
 					   "author varchar(10) NOT NULL, " \
@@ -78,23 +78,35 @@ class DBManager(object):
 				_sql = "SELECT * FROM users WHERE id = %s"
 				cursor.execute(_sql, _id)
 				result = cursor.fetchone()
-				print('result1:', result)
+				print('通过id查询用户信息:', result, _id)
 				self.connection.commit()
 				return result
 		finally:
 			self.connection.close()
 
 	# 插入文章
-	def insert_article(self,_id, _title, _content, _author, _author_id):
+	def insert_article(self, _title, _content, _create_time, _author, _id):
 		try:
 			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
-				_sql = "INSET INTO article_list(title, content, create_time, update_time, likes, dislikes, author, author_id) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
-				_create_time = ''
-				_update_time = ''
+				print(1)
+				_sql = "INSERT INTO article_list(title, content, create_time, likes, dislikes, author, author_id) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+	
 				_likes = 0
 				_dislikes = 0
-				cursor.execute(_sql, _title, _content, _create_time, _update_time, _likes, _dislikes, _author, _author_id)
+				print('++++++++++++++',)
+				cursor.execute(_sql, (_title, _content, _create_time, _likes, _dislikes, _author, _id))
 				self.connection.commit()
-			
+		finally:
+			self.connection.close()
+	
+	# 文章列表
+	def get_article_list(self):
+		try:
+			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
+				_sql = "SELECT * FROM  article_list"
+				cursor.execute(_sql)
+				result = cursor.fetchall()
+				self.connection.commit()
+				return result
 		finally:
 			self.connection.close()
