@@ -108,7 +108,6 @@ def add_article():
 		_create_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 	
 		print('_______________________________', title, content, _create_time, _author, _id)
-		print('result++++++++')
 		_result = DBManager().insert_article(title, content, _create_time, _author, _id)
 		print('result:', _result)
 		return jsonify({'code': 1, 'data': '保存成功', 'message': '保存成功'})
@@ -121,7 +120,15 @@ def article_list():
 		print('result:', _result)
 		return jsonify({'code': 1, 'data': _result, 'message': '获取文章列表成功'})
 	
-
+# 文章详情
+@app.route('/articleDetail', methods=['GET'])
+def article_detail():
+	if request.method == 'GET':
+		_id = request.args.get('id')
+		_result = DBManager().get_article_detail(_id)
+		print('result:', _result)
+		return jsonify({'code': 1, 'data': _result, 'message': '获取文章详情成功'})
+	
 	
 if __name__ == "__main__":
 	app.config['JSON_AS_ASCII'] = False    # 解决返回值中文乱码

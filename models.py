@@ -110,3 +110,15 @@ class DBManager(object):
 				return result
 		finally:
 			self.connection.close()
+	
+	# 根据id查询文章详情
+	def get_article_detail(self, _id):
+		try:
+			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
+				_sql = "SELECT * FROM article_list WHERE id = %s"
+				cursor.execute(_sql, _id)
+				result = cursor.fetchone()
+				self.connection.commit()
+				return result
+		finally:
+			self.connection.close()
