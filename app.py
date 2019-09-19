@@ -6,6 +6,7 @@ from datetime import timedelta
 import datetime
 from models import DBManager
 import os
+from urllib.request import quote, unquote
 
 # static_url_path  static_folder 配置静态资源文件夹
 app = Flask(__name__, static_url_path='/static')
@@ -24,7 +25,7 @@ DBManager().create_article_list()
 
 # flask cookie 操作
 # 设置cookie response.set_cookie(key, value, expires)
-# 获取cookie  request.cookie.get(key)
+# 获取cookie  request.cookies.get(key)
 # 删除cookie response.delete_cookie(key)
 
 # session 操作 一般用户检查登录状态 与flask_session 的区别
@@ -106,8 +107,6 @@ def add_article():
 		_userInfo = DBManager().get_user_by_id(_id)
 		_author = _userInfo['nick_name']
 		_create_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-	
-		print('_______________________________', title, content, _create_time, _author, _id)
 		_result = DBManager().insert_article(title, content, _create_time, _author, _id)
 		print('result:', _result)
 		return jsonify({'code': 1, 'data': '保存成功', 'message': '保存成功'})
@@ -116,9 +115,27 @@ def add_article():
 @app.route('/articleList', methods=['GET'])
 def article_list():
 	if request.method == 'GET':
-		_result = DBManager().get_article_list()
-		print('result:', _result)
-		return jsonify({'code': 1, 'data': _result, 'message': '获取文章列表成功'})
+		cookies = request.cookies.get('blog_user')    # 获取cookie 会自动编码？
+		cookies = json.loads(unquote(cookies))
+		_id = cookies['id']
+		page_no = request.args.get('pageNo')
+		page_size = request.args.get('pageSize')
+		_type = request.args.get('type')
+		print('id, type', _id, _type)
+		if _type == '0':
+			_result = DBManager().get_article_list(None, page_no, page_size)
+			return jsonify({'code': 1, 'data': _result, 'message': '获取文章里列表成功'})
+		elif _type == '1':
+			_result = DBManager().get_article_list_hot(page_no, page_size)
+			return jsonify({'code': 1, 'data': _result, 'message': '获取文章里列表成功'})
+		else:
+			if _id is None:
+				return jsonify({'code': 0, 'data': '请登录', 'message': '未登录状态，请重新登录'})
+			else:
+			_result = DBManager().get_article_list(_id, page_no, page_size)
+			print('result:', _result)
+			return jsonify({'code': 1, 'data': _result, 'message': '获取文章列表成功'})
+			
 	
 # 文章详情
 @app.route('/articleDetail', methods=['GET'])
