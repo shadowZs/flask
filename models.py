@@ -104,12 +104,11 @@ class DBManager(object):
 		try:
 			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
 				if _id is not None:
-					print(222)
-					_sql = "SELECT * FROM article_list WHERE author_id = %s limit %s, %s"
-					cursor.execute(_sql, (_id, page_no, page_size))
+					_sql = "SELECT * FROM article_list WHERE author_id = %s limit 1, 10"
+					cursor.execute(_sql, _id)
 				else:
-					print(111)
-					_sql = "SELECT * FROM  article_list limit %s, %s"
+					_sql = "SELECT * FROM  article_list limit %s,%s"
+					print('page_no:', page_no, type(page_no))
 					cursor.execute(_sql, (page_no, page_size))
 				
 				result = cursor.fetchall()
@@ -119,14 +118,14 @@ class DBManager(object):
 			self.connection.close()
 			
 	# 热门文章列表
-	def get_article_list_hot(self, page_no, page_size):
+	def get_article_list_hot(self):
 		try:
 			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
-			_sql = "SELECT * FROM article_list ORDER BY likes"
-			cursor.execute(_sql)
-			result = cursor.fetchall()
-			self.connection.commit()
-			return result
+				_sql = "SELECT * FROM article_list"
+				cursor.execute(_sql)
+				result = cursor.fetchall()
+				self.connection.commit()
+				return result
 		finally:
 			self.connection.close()
 	

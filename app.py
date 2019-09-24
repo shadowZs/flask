@@ -115,28 +115,32 @@ def add_article():
 @app.route('/articleList', methods=['GET'])
 def article_list():
 	if request.method == 'GET':
-		cookies = request.cookies.get('blog_user')    # 获取cookie 会自动编码？
-		cookies = json.loads(unquote(cookies))
-		_id = cookies['id']
-		page_no = request.args.get('pageNo')
-		page_size = request.args.get('pageSize')
+		page_no = int(request.args.get('pageNo'))   # page_no, page_size 为整形，str操作数据库会报错
+		page_size = int(request.args.get('pageSize'))
 		_type = request.args.get('type')
-		print('id, type', _id, _type)
+		
 		if _type == '0':
+			print(page_no, type(page_no))
 			_result = DBManager().get_article_list(None, page_no, page_size)
 			return jsonify({'code': 1, 'data': _result, 'message': '获取文章里列表成功'})
+		
 		elif _type == '1':
-			_result = DBManager().get_article_list_hot(page_no, page_size)
+			_result = DBManager().get_article_list_hot()
 			return jsonify({'code': 1, 'data': _result, 'message': '获取文章里列表成功'})
+			
 		else:
-			if _id is None:
+			cookies = request.cookies.get('blog_user')    # 获取cookie 会自动编码？
+			if cookies is None:
 				return jsonify({'code': 0, 'data': '请登录', 'message': '未登录状态，请重新登录'})
 			else:
-			_result = DBManager().get_article_list(_id, page_no, page_size)
-			print('result:', _result)
-			return jsonify({'code': 1, 'data': _result, 'message': '获取文章列表成功'})
-			
-	
+				cookies = json.loads(unquote(cookies))
+				_id = cookies['id']
+				if _id is None:
+					return jsonify({'code': 0, 'data': '请登录', 'message': '未登录状态，请重新登录'})
+				else:
+					_result = DBManager().get_article_list(_id)
+					return jsonify({'code': 1, 'data': _result, 'message': '获取文章里列表成功'})
+				
 # 文章详情
 @app.route('/articleDetail', methods=['GET'])
 def article_detail():
