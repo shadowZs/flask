@@ -60,7 +60,7 @@ def login():
 	mobile = res['mobile']
 	password = res['password']
 	result = DBManager().get_user_by_mobile(mobile)
-	print('result:', result)
+	print('result:', result, result['password'] == password)
 	if result['password'] == password:
 		return jsonify({'code': 1, 'message': '登录成功', 'data': result})
 	else:
@@ -75,7 +75,9 @@ def register():
 	password = res['password']
 	nick_name = res['nickName']
 	print(mobile, password, nick_name)
-	return jsonify({'code': 1, 'message': '注册成功', 'data': '注册成功'})
+	_result = DBManager().insert_user(mobile, password, nick_name)
+	print('result:', _result)
+	return jsonify({'code': 1, 'message': '注册成功', 'data': _result})
 
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])

@@ -52,7 +52,7 @@ class DBManager(object):
 		try:
 			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
 				_sql = "INSERT INTO users (mobile, password, nick_name) VALUES (%s, %s, %s)"
-				cursor.execute(_sql, mobile, password, nick_name)
+				cursor.execute(_sql, (mobile, password, nick_name))
 				self.connection.commit()
 
 		finally:
@@ -93,7 +93,6 @@ class DBManager(object):
 	
 				_likes = 0
 				_dislikes = 0
-				print('++++++++++++++',)
 				cursor.execute(_sql, (_title, _content, _create_time, _likes, _dislikes, _author, _id))
 				self.connection.commit()
 		finally:
@@ -104,15 +103,18 @@ class DBManager(object):
 		try:
 			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
 				if _id is not None:
-					_sql = "SELECT * FROM article_list WHERE author_id = %s limit 1, 10"
-					cursor.execute(_sql, _id)
+					_sql = "SELECT * FROM article_list WHERE author_id = %s limit %s, %s"
+					# _sql_count = "SELECT COUNT(*) FROM article_list"
+					cursor.execute(_sql, (_id, page_no, page_size))
+					# cursor.execute(_sql_count)
 				else:
-					_sql = "SELECT * FROM  article_list limit %s,%s"
-					print('page_no:', page_no, type(page_no))
+					_sql = "SELECT * FROM  article_list limit %s, %s"
+					# _sql_count = "SELECT COUNT(*) FROM article_list"
+					# cursor.execute(_sql_count)
 					cursor.execute(_sql, (page_no, page_size))
-				
-				result = cursor.fetchall()
 				self.connection.commit()
+				result = cursor.fetchall()
+				print('1111111：', result)
 				return result
 		finally:
 			self.connection.close()
