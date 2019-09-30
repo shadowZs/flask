@@ -47,6 +47,19 @@ class DBManager(object):
 		finally:
 			self.connection.close()
 	
+	# 创建文章分类表(标签)
+	def create_article_type(self):
+		try:
+			with self.connection.cursor() as cursor:
+				_sql = "CREATE TABLE IF NOT EXISTS article_type(" \
+					   "id int(11) NOT NULL AUTO_INCREMENT," \
+					   "type varchar(20) NOT NULL," \
+					   "PRIMARY KEY(id))"
+				cursor.execute(_sql)
+				self.connection.commit()
+		finally:
+			self.connection.close()
+	
 	# 添加用户
 	def insert_user(self, mobile, password, nick_name):
 		try:
@@ -83,7 +96,20 @@ class DBManager(object):
 				return result
 		finally:
 			self.connection.close()
-
+	
+	# 文章标签
+	def get_article_type(self):
+		try:
+			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
+				_sql = "SELECT * FROM article_type"
+				cursor.execute(_sql)
+				result = cursor.fetchall()
+				print('查询文章标签', result)
+				self.connection.commit()
+				return result
+		finally:
+			self.connection.close()
+	
 	# 插入文章
 	def insert_article(self, _title, _content, _create_time, _author, _id):
 		try:

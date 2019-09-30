@@ -14,6 +14,7 @@ app.config['base_host'] = 'http://localhost:5000'
 
 DBManager().create_user_table()
 DBManager().create_article_list()
+DBManager().create_article_type()
 
 # form 表单提交可以通过 request.form.get() / form[] 来获取参数
 # post 非表单提交可以通过 request.get_data 来获取,
@@ -61,7 +62,7 @@ def login():
 	password = res['password']
 	result = DBManager().get_user_by_mobile(mobile)
 	print('result:', result, result['password'] == password)
-	if result['password'] == password:
+	if result and result['password'] == password:
 		return jsonify({'code': 1, 'message': '登录成功', 'data': result})
 	else:
 		return jsonify({'code': 0, 'message': '账号密码错误', 'data': '账号密码错误'})
@@ -112,6 +113,14 @@ def add_article():
 		_result = DBManager().insert_article(title, content, _create_time, _author, _id)
 		print('result:', _result)
 		return jsonify({'code': 1, 'data': '保存成功', 'message': '保存成功'})
+
+
+# 文章标签
+@app.route('/articleTypes', methods=['GET'])
+def article_types():
+	if request.method == 'GET':
+		_result = DBManager().get_article_type()
+		return jsonify({'code': 1, 'data': _result, 'message': '成功'})
 
 # 文章列表
 @app.route('/articleList', methods=['GET'])
