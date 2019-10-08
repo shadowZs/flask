@@ -123,6 +123,8 @@ def article_types():
 		return jsonify({'code': 1, 'data': _result, 'message': '成功'})
 
 # 文章列表
+# String '0': 默认排序
+# String '1': 热门排序
 @app.route('/articleList', methods=['GET'])
 def article_list():
 	if request.method == 'GET':
@@ -131,7 +133,6 @@ def article_list():
 		_type = request.args.get('type')
 		
 		if _type == '0':
-			print(page_no, type(page_no))
 			_result = DBManager().get_article_list(None, page_no, page_size)
 			return jsonify({'code': 1, 'data': _result, 'message': '获取文章里列表成功'})
 		
@@ -151,7 +152,25 @@ def article_list():
 				else:
 					_result = DBManager().get_article_list(_id)
 					return jsonify({'code': 1, 'data': _result, 'message': '获取文章里列表成功'})
-				
+		
+
+# 我发表的文章
+@app.route('/articleListByUser', methods=['GET'])
+def article_list_by_user():
+	if request.method == 'GET':
+		user_id = request.args.get('id')
+		print(1111111, request.args.get('pageNo'))
+		page_no = int(request.args.get('pageNo'))
+		page_size = int(request.args.get('pageSize'))
+		print('我发表的文章：', user_id, page_no, page_size)
+		if user_id is None:
+			return jsonify({'code': 0, 'data': '', 'message': '请登录'})
+		else:
+		
+			_result = DBManager().get_article_list_by_user(user_id)
+			print('我的文章：', _result)
+			return jsonify({'code': 1, 'data': _result, 'message': '获取我的文章列表成功'})
+
 # 文章详情
 @app.route('/articleDetail', methods=['GET'])
 def article_detail():

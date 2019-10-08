@@ -161,9 +161,21 @@ class DBManager(object):
 	def get_article_detail(self, _id):
 		try:
 			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
-				_sql = "SELECT * FROM article_list WHERE id = %s"
+				_sql = "SELECT * FROM article_list WHERE id = %s "
 				cursor.execute(_sql, _id)
 				result = cursor.fetchone()
+				self.connection.commit()
+				return result
+		finally:
+			self.connection.close()
+	
+	# 我的文章列表
+	def get_article_list_by_user(self, user_id):
+		try:
+			with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
+				_sql = "SELECT * FROM article_list WHERE author_id = %s"
+				cursor.execute(_sql, user_id)
+				result = cursor.fetchall()
 				self.connection.commit()
 				return result
 		finally:
